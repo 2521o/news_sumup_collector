@@ -5,6 +5,12 @@ path/
 
 # Ignorer les fichiers de dépendances temporaires
 __pycache__/
+*/__pycache__/
 
 .vscode/
 .DS_Store
+
+# Ignore les fichiers de reporting
+
+data/
+logs/
