@@ -1,5 +1,6 @@
 import feedparser
 import json
+import cleaner
 from newspaper import Article 
 from datetime import datetime
 
@@ -19,29 +20,37 @@ def collect_articles(n=3):
     @param n: Number of articles to collect from each feed.
     @return: A list of dictionaries containing article details.
     """
+    assert n > 0, "n must be between 1 and the number of articles in the feed."
     feeds = read_feeds_file()
+    if(n>len(feeds)):
+        n = len(feeds)
+    # List of dictionaries to store articles
     articles = []
 
     for url in feeds:
         feed = feedparser.parse(url)
         for entry in feed.entries[:n]:
             link = entry.get("link")
+            source = feed.feed.get("title")
+            print(source)
             
             # Parsing with newspaper3k to extract the article text
             article = Article(link)
             article.download() # required before parsing
             article.parse()
+            text = article.text
+            
+            # Clean the text using the cleaner module
+            cleaned_text = cleaner.clean_text(text, source)
             
             # Add data to the dictionnary for each article
             articles.append({
+                "source": source,
                 "title": entry.get("title"),
-                "author": article.authors,
+                "author": article.authors[0],
                 "link": link,
                 "published": entry.get("published"),
-                "summary": entry.get("summary", ""),
-                "text": article.text,
-                "source": feed.feed.get("title"),
-                
+                "text": cleaned_text,
             })
 
     return articles
