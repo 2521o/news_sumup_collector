@@ -1,0 +1,8 @@
+feedparser
+newspaper3k
+transformers
+torch
+langdetect
+beautifulsoup4
+lxml
+requests
