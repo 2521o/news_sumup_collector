@@ -22,20 +22,20 @@ SITE_REGEX_CLEANERS = {
 
         # Balises sources / mentions décoratives
         r"Source\s?:\s?.*",
-        r"//\s?.*",  # lignes style "Tesla Semi //" ou "Cybercab (2026) //"
+        r"//\s?.*",  
     ],
     "The Verge": [
-        r"Sign up for Verge Deals.*?(?=\n|$)",  # promo newsletter
-        r"Subscribe to.*?newsletter.*?",        # promo générique
-        r"Check your inbox for a welcome email.*?",  # après inscription
-        r"Related.*?",                          # sections "Related"
-        r"More from The Verge.*?",              # footer ou suggestions
-        r"The Verge is a vox media.*?",         # mentions groupe Vox
-        r"Photography by.*?",                   # crédits photo
-        r"Update.*?:",                          # titres de mise à jour
-        r"Filed under.*?",                      # catégories
-        r"Email.*?Twitter.*?Flipboard.*?",      # section réseaux sociaux
-        r"Disclosure:.*?",                      # mentions légales/pub
+        r"Sign up for Verge Deals.*?(?=\n|$)",  
+        r"Subscribe to.*?newsletter.*?",        
+        r"Check your inbox for a welcome email.*?",  
+        r"Related.*?",                          
+        r"More from The Verge.*?",              
+        r"The Verge is a vox media.*?",         
+        r"Photography by.*?",                   
+        r"Update.*?:",                         
+        r"Filed under.*?",                      
+        r"Email.*?Twitter.*?Flipboard.*?",      
+        r"Disclosure:.*?",                      
     ]
 }
 
@@ -46,10 +46,9 @@ def clean_text(text:str, source:str = "")->str:
     @param source: The website's name which the text comes from.
     @return: The cleaned text.
     """
-    site = source
     
     # Specific cleaning for each site
-    regexes = SITE_REGEX_CLEANERS.get(site, [])
+    regexes = SITE_REGEX_CLEANERS.get(source, [])
     for pattern in regexes:
         text = re.sub(pattern, "", text, flags=re.IGNORECASE | re.DOTALL)
 
