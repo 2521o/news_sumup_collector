@@ -3,6 +3,7 @@ import json
 import cleaner
 from newspaper import Article 
 from datetime import datetime
+import summarizer
 
 def read_feeds_file(path="feeds/feeds.txt"):
     """
@@ -32,7 +33,6 @@ def collect_articles(n=3):
         for entry in feed.entries[:n]:
             link = entry.get("link")
             source = feed.feed.get("title")
-            print(source)
             
             # Parsing with newspaper3k to extract the article text
             article = Article(link)
@@ -43,6 +43,9 @@ def collect_articles(n=3):
             # Clean the text using the cleaner module
             cleaned_text = cleaner.clean_text(text, source)
             
+            # Summarize the article text
+            summary = summarizer.summarize_article(cleaned_text)
+            
             # Add data to the dictionnary for each article
             articles.append({
                 "source": source,
@@ -51,6 +54,7 @@ def collect_articles(n=3):
                 "link": link,
                 "published": entry.get("published"),
                 "text": cleaned_text,
+                "summary": summary
             })
 
     return articles
