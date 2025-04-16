@@ -30,7 +30,7 @@ source venv/bin/activate
 3. Install dependencies:
 
 ```bash
-pip install -r requirements.txt
+pip install -r config/requirements.txt
 ```
 
 4. Add the RSS feed URLs you want to follow in feeds/feeds.txt, then run the main script:
