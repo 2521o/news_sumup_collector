@@ -1,4 +1,5 @@
 import re
+from utils.logger import get_logger
 
 # This script is used to clean the text of articles from various websites.
 SITE_REGEX_CLEANERS = {
@@ -39,6 +40,8 @@ SITE_REGEX_CLEANERS = {
     ]
 }
 
+log_handler = get_logger(__name__)
+
 def clean_text(text:str, source:str = "")->str:
     """
     Cleans the text of an article by removing unwanted patterns and characters.
@@ -46,6 +49,7 @@ def clean_text(text:str, source:str = "")->str:
     @param source: The website's name which the text comes from.
     @return: The cleaned text.
     """
+    log_handler.info("Cleaning text from source: %s", source)
     
     # Specific cleaning for each site
     regexes = SITE_REGEX_CLEANERS.get(source, [])
@@ -53,14 +57,16 @@ def clean_text(text:str, source:str = "")->str:
         text = re.sub(pattern, "", text, flags=re.IGNORECASE | re.DOTALL)
 
 
-    # Regex pour enlever la section concernant l'auteur ou une description de l'auteur
-    text = re.sub(r"^is a .*\n", "", text)  # On enlève tout texte commençant par "is a"
+    # Regex to remove author's description
+    text = re.sub(r"^is a .*\n", "", text)  
+    text = re.sub(r"^By.*\n", "", text)  
     
-    text = re.sub(r"^By.*\n", "", text)  # On supprime les lignes qui commencent par "By"
-    
-    # Supprimer les autres mentions inutiles comme les crédits photo, la source, etc.
-    text = re.sub(r"Photography by .*", "", text)  # Crédit photo
-    text = re.sub(r"Filed under.*", "", text)  # Section "Filed under"
+    # Remove any other kind of unnecessary information
+    text = re.sub(r"Photography by .*", "", text)  
+    text = re.sub(r"Written by .*", "", text)
+    text = re.sub(r"Edited by .*", "", text)
+    text = re.sub(r"Published.*", "", text)
+    text = re.sub(r"Filed under.*", "", text)  
     
     # Regular cleaning
     text = re.sub(r"<[^>]+>", "", text) # Erase HTML tags

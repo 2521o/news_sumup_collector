@@ -1,9 +1,15 @@
 import feedparser
 import json
-import cleaner
+import src.cleaner as cleaner
 from newspaper import Article 
 from datetime import datetime
-import summarizer
+from utils.logger import get_logger
+import src.summarizer as summarizer
+
+
+
+# Setup logging
+log_handler = get_logger(__name__)
 
 def read_feeds_file(path="feeds/feeds.txt"):
     """
@@ -12,8 +18,15 @@ def read_feeds_file(path="feeds/feeds.txt"):
     @param path: Path to the feeds file.
     @return: A list of feed URLs.
     """
-    with open(path, "r", encoding="utf-8") as f:
-        return [line.strip() for line in f if line.strip() and not line.startswith("#")]
+    log_handler.info("Reading feed file from %s", path)
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            feeds = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+        log_handler.info("Successfully read %d feeds.", len(feeds))
+        return feeds
+    except Exception as e:
+        log_handler.error("Error reading the feed file: %s", str(e))
+        raise
 
 def collect_articles(n=3):
     """
@@ -25,39 +38,49 @@ def collect_articles(n=3):
     feeds = read_feeds_file()
     if(n>len(feeds)):
         n = len(feeds)
+        
     # List of dictionaries to store articles
     articles = []
 
     for url in feeds:
-        feed = feedparser.parse(url)
-        for entry in feed.entries[:n]:
-            link = entry.get("link")
-            source = feed.feed.get("title")
+        try:
+            log_handler.info("Processing feed from %s", url)
+            feed = feedparser.parse(url)
             
-            # Parsing with newspaper3k to extract the article text
-            article = Article(link)
-            article.download() # required before parsing
-            article.parse()
-            text = article.text
-            
-            # Clean the text using the cleaner module
-            cleaned_text = cleaner.clean_text(text, source)
-            
-            # Summarize the article text
-            summary = summarizer.summarize_article(cleaned_text)
-            
-            # Add data to the dictionnary for each article
-            articles.append({
-                "source": source,
-                "title": entry.get("title"),
-                "author": article.authors[0],
-                "link": link,
-                "published": entry.get("published"),
-                "text": cleaned_text,
-                "summary": summary
-            })
+            for entry in feed.entries[:n]:
+                link = entry.get("link")
+                source = feed.feed.get("title")
+                log_handler.info("Processing article from %s", source)
+                
+                # Parsing with newspaper3k to extract the article text
+                article = Article(link)
+                article.download() # required before parsing
+                article.parse()
+                text = article.text
+                
+                # Clean the text using the cleaner module
+                cleaned_text = cleaner.clean_text(text, source)
+                
+                # Summarize the article text
+                summary = summarizer.summarize_article(cleaned_text)
+                
+                # Add data to the dictionnary for each article
+                articles.append({
+                    "source": source,
+                    "title": entry.get("title"),
+                    "author": article.authors[0],
+                    "link": link,
+                    "published": entry.get("published"),
+                    "text": cleaned_text,
+                    "summary": summary
+                })
+                
+                log_handler.info("Article from %s processed successfully", source)
+        except Exception as e:
+            log_handler.error("Error processing feed %s: %s", url, str(e))
 
-    return articles
+        log_handler.info("Collected %d articles successfully", len(articles))
+        return articles
     
 def save_articles_to_json(articles, path=None):
     """
@@ -67,10 +90,10 @@ def save_articles_to_json(articles, path=None):
         today = datetime.now().strftime("%Y-%m-%d")
         path = f"data/articles_{today}.json"
 
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(articles, f, ensure_ascii=False, indent=2)
-
-if __name__ == "__main__":
-    articles = collect_articles()
-    save_articles_to_json(articles)
-    print(f"Collected {len(articles)} articles.")
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(articles, f, ensure_ascii=False, indent=2)
+        log_handler.info("Successfully saved %d articles", len(articles))
+    except Exception as e:
+        log_handler.error("Error saving articles to JSON: %s", str(e))
+        raise
