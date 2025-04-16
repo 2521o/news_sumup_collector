@@ -36,12 +36,10 @@ def collect_articles(n=3):
     """
     assert n > 0, "n must be between 1 and the number of articles in the feed."
     feeds = read_feeds_file()
-    if(n>len(feeds)):
-        n = len(feeds)
         
     # List of dictionaries to store articles
     articles = []
-
+    
     for url in feeds:
         try:
             log_handler.info("Processing feed from %s", url)
@@ -79,8 +77,8 @@ def collect_articles(n=3):
         except Exception as e:
             log_handler.error("Error processing feed %s: %s", url, str(e))
 
-        log_handler.info("Collected %d articles successfully", len(articles))
-        return articles
+    log_handler.info("Collected %d articles successfully", len(articles))
+    return articles
     
 def save_articles_to_json(articles, path=None):
     """

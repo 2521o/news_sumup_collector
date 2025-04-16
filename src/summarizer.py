@@ -38,7 +38,7 @@ def summarize_article(text: str) -> str:
 
     # Text preparation
     inputs = tokenizer(text, return_tensors="pt", max_length=1024, truncation=True)
-    summary_ids = model.generate(inputs["input_ids"], max_length=150, early_stopping=True)
+    summary_ids = model.generate(inputs["input_ids"], max_length=512, early_stopping=True)
     log_handler.info("Summarization completed")
     
     return tokenizer.decode(summary_ids[0], skip_special_tokens=True)
