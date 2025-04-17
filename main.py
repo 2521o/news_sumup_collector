@@ -13,7 +13,7 @@ if __name__ == "__main__":
         articles = collect_articles(5)
         save_articles_to_json(articles, "data/article_test.json")
         body = get_summary_from_json("data/article_test.json")
-        send_email(body, "floriandlg@protonmail.com")
+        send_email(body, os.dotenv.get("RECIPIENT_EMAIL_ADDRESS"))
         log_handler.info("Fin d'exécution.")
     except Exception as e:
         log_handler.error("Une erreur est survenue lors de l'exécution de l'application : %s", e)
