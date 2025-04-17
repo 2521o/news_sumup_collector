@@ -6,3 +6,4 @@ langdetect
 beautifulsoup4
 lxml
 requests
+python-dotenv
