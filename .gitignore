@@ -2,6 +2,7 @@
 venv/
 .env/
 path/
+.env
 
 # Ignorer les fichiers de dépendances temporaires
 __pycache__/
